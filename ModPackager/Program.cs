@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Text;
 using CommandLine;
 using Ionic.Zip;
@@ -14,6 +15,9 @@ namespace ModPackager
 
         [Option('o', "out", Required = true, HelpText = "Output path for the packages")]
         public string OutPath { get; set; }
+
+        [Option("only", HelpText = "Build only the specified packages", Separator = ',')]
+        public IEnumerable<string> BuildOnly { get; set; }
     }
 
     internal static class Program
@@ -40,10 +44,14 @@ namespace ModPackager
             }
 
             var buildConfig = Serialization.Deserialize<BuildConfig>(File.ReadAllText(configPath));
+            var buildOnly = args.BuildOnly.ToArray();
 
             foreach (var buildConfigPackage in buildConfig.Packages)
             {
-                BuildPackage(args, buildConfigPackage);
+                if (buildOnly.Count() == 0 ||
+                        buildOnly.Contains(buildConfigPackage.DistributionName)) {
+                    BuildPackage(args, buildConfigPackage);
+                }
             }
 
             if (buildConfig.GenerateIndex)
