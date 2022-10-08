@@ -26,6 +26,7 @@ namespace ModPackager
         public static void MarshalStruct<T>(Stream stream, T obj) where T : struct
         {
             stream.Write(GetBytes(obj));
+            
         }
     }
 }
